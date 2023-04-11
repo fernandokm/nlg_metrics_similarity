@@ -4,3 +4,6 @@ rouge-score
 moverscore
 pyemd
 pytorch_pretrained_bert
+bert-score
+transformers
+git+https://github.com/PierreColombo/nlg_eval_via_simi_measures
