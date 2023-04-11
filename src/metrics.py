@@ -179,3 +179,68 @@ def evaluate_bertscore(candidates : list[str], references : list[list[str]], mod
     return list_scores
 
 
+def evaluate_baryscore(candidates : list[str], references : list[list[str]], model : Optional[str] = None) -> list[str]:
+    """
+    Compute Baryscore for a batch of sentences (compute for each reference and take the best score).
+    params:
+        - cands : List[str]
+        - refs List[List[str]]
+    
+    output:
+        - scores : List[float]
+    """
+    from nlg_eval_via_simi_measures import BaryScoreMetric
+
+    if model == None:
+        model = DEFAULT_MODEL
+
+    list_scores = []
+    metric_call = BaryScoreMetric(model_name=model)
+    for pred, refs in zip(candidates, references):
+        pred = [pred]
+        sentence_scores = []
+        for ref in refs:
+            ref = [ref]
+            metric_call.prepare_idfs(ref, pred)
+            sentence_score = metric_call.evaluate_batch(pred, ref)
+            sentence_scores.append(sentence_score['baryscore_W'][0])
+
+        list_scores.append(min(sentence_scores))
+
+    return list_scores
+
+
+def evaluate_depthscore(candidates : list[str], references : list[list[str]], model : Optional[str] = None) -> list[str]:
+    """
+    Compute DepthScore for a batch of sentences (compute for each reference and take the best score).
+    params:
+        - cands : List[str]
+        - refs List[List[str]]
+    
+    output:
+        - scores : List[float]
+    """
+    from nlg_eval_via_simi_measures import DepthScoreMetric
+
+    if model == None:
+        model = DEFAULT_MODEL
+    hidden_layers = get_model_hidden_layers(model)
+
+    list_scores = []
+    metric_call = DepthScoreMetric(model_name=model, layers_to_consider=hidden_layers)
+    
+    for pred, refs in zip(candidates, references):
+        pred = [pred]
+        sentence_scores = []
+        for ref in refs:
+            ref = [ref]
+            metric_call.prepare_idfs(ref, pred)
+            sentence_score = metric_call.evaluate_batch(pred, ref)
+            sentence_scores.append(sentence_score['depth_score'][0])
+
+        list_scores.append(min(sentence_scores))
+
+    return list_scores
+
+
+
