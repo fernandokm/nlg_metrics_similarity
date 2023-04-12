@@ -3,11 +3,12 @@ import re
 import tarfile
 import urllib.request
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 from tqdm import tqdm
 
-DATA_DIR = Path("data")
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 URL_DIRECT_ASSESMENT = "https://unbabel-experimental-data-sets.s3.eu-west-1.amazonaws.com/wmt/2020-da.csv.tar.gz"  # noqa
@@ -34,7 +35,7 @@ def _cache_url(url: str) -> Path:
         # Create a progress bar and download the file
         with tqdm(unit="B", unit_scale=True, unit_divisor=1024, desc=filename) as pbar:
 
-            def reporthook(chunks: int, chunk_size: int, total: int | None):
+            def reporthook(chunks: int, chunk_size: int, total: Optional[int]):
                 if total is not None:
                     pbar.total = total
                 pbar.update(chunks * chunk_size - pbar.n)
@@ -75,6 +76,11 @@ def _load_mqm_scores() -> pd.DataFrame:
 
 
 def load_data() -> pd.DataFrame:
+    cache_file = DATA_DIR / "aggregated.csv"
+
+    if cache_file.exists():
+        return pd.read_csv(str(cache_file))
+
     da = _load_da()
     mqm = _load_mqm()
     mqm_scores = _load_mqm_scores()
@@ -128,5 +134,7 @@ def load_data() -> pd.DataFrame:
             inplace=True,
         )
         generated_data = generated_data.merge(ref_data, on=["seg_id"], how="left")
+
+    generated_data.to_csv(str(cache_file), index=False)
 
     return generated_data
