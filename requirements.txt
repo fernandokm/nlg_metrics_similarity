@@ -1,9 +1,10 @@
 sacrebleu
 nltk
 rouge-score
-moverscore
+git+https://github.com/AIPHES/emnlp19-moverscore#0459a3b
 pyemd
 pytorch_pretrained_bert
 bert-score
 transformers
+evaluate
 git+https://github.com/PierreColombo/nlg_eval_via_simi_measures
