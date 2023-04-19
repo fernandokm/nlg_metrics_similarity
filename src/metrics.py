@@ -29,7 +29,7 @@ DATA_DIR = Path(__file__).parent.parent / "data" / "metrics"
 DEFAULT_MODEL = "distilbert-base-multilingual-cased"
 DEFAULT_BATCH_SIZE = 256
 
-
+# only for python 3.8 compatibility
 def removeprefix(s: str, prefix: str) -> str:
     if s.startswith(prefix):
         return s[len(prefix) :]
