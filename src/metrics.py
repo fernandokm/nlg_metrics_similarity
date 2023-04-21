@@ -436,51 +436,6 @@ def evaluate_baryscore(
     )
 
 
-def evaluate_depthscore(
-    candidates: List[str],
-    references: List[List[str]],
-    model: Optional[str] = None,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-) -> List[float]:
-    """
-    Compute DepthScore for a batch of sentences
-    (compute for each reference and take the best score).
-    params:
-        - cands : List[str]
-        - refs List[List[str]]
-
-    output:
-        - scores : List[float]
-    """
-    from nlg_eval_via_simi_measures import DepthScoreMetric
-
-    if model is None:
-        model = DEFAULT_MODEL
-    hidden_layers = get_model_hidden_layers(model)
-
-    candidates_flat, references_flat, boundaries = flatten_input(candidates, references)
-
-    metric_call = DepthScoreMetric(model_name=model, layers_to_consider=hidden_layers)
-    metric_call.prepare_idfs(candidates_flat, references_flat)
-
-    def run_batch(batch_candidates: List[str], batch_references: List[str]):
-        with disable_tqdm_and_catch_warnings():
-            result = metric_call.evaluate_batch(
-                batch_candidates,
-                batch_references,
-            )
-            return result["depth_score"]
-
-    return _run_batched(
-        candidates_flat,
-        references_flat,
-        boundaries,
-        run_batch,
-        desc=f"evaluate_depthscore({model})",
-        batch_size=batch_size,
-    )
-
-
 DEFAULT_EVAL_WITHOUT_MODEL = [
     evaluate_bleu,
     evaluate_chrf,
