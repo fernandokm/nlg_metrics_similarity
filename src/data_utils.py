@@ -56,20 +56,20 @@ def clean_text(text: str) -> str:
     return text
 
 
-def _load_da() -> pd.DataFrame:
+def load_da() -> pd.DataFrame:
     """Loads the direct assesment data"""
     da_gzip_path = _cache_url(URL_DIRECT_ASSESMENT)
     with tarfile.open(da_gzip_path, "r:gz") as da_file:
         return pd.read_csv(da_file.extractfile("2020-da.csv"))  # type: ignore
 
 
-def _load_mqm() -> pd.DataFrame:
+def load_mqm() -> pd.DataFrame:
     """Loads the mqm data"""
     mqm_path = _cache_url(URL_MQM_ENDE)
     return pd.read_csv(mqm_path, sep="\t", quoting=csv.QUOTE_NONE)
 
 
-def _load_mqm_scores() -> pd.DataFrame:
+def load_mqm_scores() -> pd.DataFrame:
     """Loads the mqm scores"""
     mqm_scores_path = _cache_url(URL_MQM_ENDE_SCORES)
     return pd.read_csv(mqm_scores_path, sep=" ", quoting=csv.QUOTE_NONE)
@@ -81,9 +81,9 @@ def load_data() -> pd.DataFrame:
     if cache_file.exists():
         return pd.read_csv(str(cache_file))
 
-    da = _load_da()
-    mqm = _load_mqm()
-    mqm_scores = _load_mqm_scores()
+    da = load_da()
+    mqm = load_mqm()
+    mqm_scores = load_mqm_scores()
 
     # Extract only the text data from mqm
     data = mqm[["system", "seg_id", "source", "target"]].copy()
